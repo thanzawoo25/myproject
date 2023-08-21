@@ -10,22 +10,109 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id Int @id @default(autoincrement())
-  email String @unique
-  name String? 
-  posts Post[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+model Company {
+  id         Int      @id @default(autoincrement())
+  name       String
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  User       User[]
 }
 
-model Post{
-  id Int @id @default(autoincrement())
-  title String
-  content String?
-  published Boolean @default(false)
-  author User @relation(fields:[authorId],references:[id])
-  authorId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  name       String?
+  comppanyId Int
+  company    Company  @relation(fields: [comppanyId], references: [id])
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+model Locations {
+  id         Int      @id @default(autoincrement())
+  name       String
+  address    String
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  MenusMenuCategoriesLocations MenusMenuCategoriesLocations[]
+  Tables                       Tables[]
+}
+
+model Tables {
+  id         Int       @id @default(autoincrement())
+  name       String
+  locationId Int
+  locations  Locations @relation(fields: [locationId], references: [id])
+  isArchived Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+}
+
+model Menus {
+  id         Int      @id @default(autoincrement())
+  name       String
+  price      Int
+  assetUrl   String?
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  MenusMenuCategoriesLocations MenusMenuCategoriesLocations[]
+  MenusAddonCategories         MenusAddonCategories[]
+}
+
+model MenuCategoies {
+  id         Int      @id @default(autoincrement())
+  name       String
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  MenusMenuCategoriesLocations MenusMenuCategoriesLocations[]
+}
+
+model MenusMenuCategoriesLocations {
+  id             Int           @id @default(autoincrement())
+  menuId         Int
+  menus          Menus         @relation(fields: [menuId], references: [id])
+  menuCategoryId Int
+  menuCategories MenuCategoies @relation(fields: [menuCategoryId], references: [id])
+  locationId     Int
+  locations      Locations     @relation(fields: [locationId], references: [id])
+}
+
+model AddonCategories {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  isRequired           Boolean                @default(false)
+  isArchived           Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @default(now()) @updatedAt
+  MenusAddonCategories MenusAddonCategories[]
+  Addons               Addons[]
+}
+
+model MenusAddonCategories {
+  id              Int             @id @default(autoincrement())
+  name            String
+  menuId          Int
+  menus           Menus           @relation(fields: [menuId], references: [id])
+  addonCategoryId Int
+  addonCategories AddonCategories @relation(fields: [addonCategoryId], references: [id])
+}
+
+model Addons {
+  id              Int             @id @default(autoincrement())
+  name            String
+  price           Int
+  isAvailable     Boolean?        @default(true)
+  addonCategoryId Int
+  addonCategories AddonCategories @relation(fields: [addonCategoryId], references: [id])
+  isArchived      Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
 }
